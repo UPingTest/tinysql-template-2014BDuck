@@ -15,17 +15,17 @@
 	- 如果类似 number >= “xx” 这样的查询比较多，那么一个类似有序数组的排列是比较优的，因为这样我们可以避免读取较多的无用数据
 - 对于同一行上的数据，我们是分开存还是存在一起比较好呢？再一次，这取决于数据访问的模式，如果同一行上的数据总是需要同时被读取，那么存在一起是更好的，在 TinySQL 中我们选择了将同一行上的数据存放在一起。
 
-从上面的角度看，一个类似有序的数组的排列可能是最简单的方式，因为几乎它的可以用一个统一的方式满足所有的要求。接下来我们再看看 TinyKV，从最简单的角度看，我们可以将它看做一个提供了如下性质的 KV 引擎：
+从上面的角度看，一个类似有序数组的排列可能是最简单的方式，因为它几乎都可以用一个统一的方式满足所有的要求。接下来我们再看看 TinyKV，从最简单的角度看，我们可以将它看做一个提供了如下性质的 KV 引擎：
 
-- Key 和 Value 都是 bytes 数组，也就是说无论原先的类型是什么，我们都要序列化后再存入
-- Scan(startKey)，任意给定一个 Key，这个接口可以按顺序返回所有大于等于这个 startKey 数据。
-- Set(key, value)，将 key 的值设置为 value。
+- **Key 和 Value 都是 bytes 数组**：无论原先的类型是什么，我们都要序列化后再存入
+- **Scan(startKey)**：任意给定一个 Key，这个接口可以按顺序返回所有大于等于这个 startKey 数据。
+- **Set(key, value)**：将 key 的值设置为 value。
 
 结合上面的讨论，数据的存储方式就呼之欲出了：
 
-- 由于同一张表的需要存放在一起，那么表的唯一标示应该放在 Key 的最前面，这样同一张表的 Key 就是连续的
-- 对于某一张表，将需要排序的列放在表的唯一标示后面，编码在 Key 里
-- Value 中存放某一行上所有其他的列
+- 由于同一张表的数据需要存放在一起，那么表的唯一标识应该放在 Key 的最前面，这样同一张表的 Key 就是连续的
+- 对于某一张表，将需要排序的列放在表的唯一标识后面，编码在 Key 里
+- Value 中存放某一行上所有**其他**的列
 
 具体来说，我们会对每个表分配一个 TableID，每一行分配一个 RowID（如果表有整数型的 Primary Key，那么会用 Primary Key 的值当做 RowID），其中 TableID 在整个集群内唯一，RowID 在表内唯一，这些 ID 都是 int64 类型。
 每行数据按照如下规则进行编码成 Key-Value pair：
@@ -54,7 +54,7 @@
 
 ## 理解代码
 
-tablecodec 的主要代码位于 [tablecodec.go](https://github.com/pingcap-incubator/tinysql/blob/course/tablecodec/tablecodec.go)，这次我们需要关注的代码主要从 [L33 到 L147](https://github.com/pingcap-incubator/tinysql/blob/course/tablecodec/tablecodec.go#L33-L146) 之间。
+tablecodec 的主要代码位于 [tablecodec.go](https://github.com/pingcap-incubator/tinysql/blob/course/tablecodec/tablecodec.go) ，这次我们需要关注的代码主要从 [L33 到 L147](https://github.com/pingcap-incubator/tinysql/blob/course/tablecodec/tablecodec.go#L33-L146) 之间。
 
 代码一开始，定义了上文提到的三个常量：tablePrefix，recordPrefixSep 和 indexPrefixSep。
 
@@ -62,7 +62,7 @@ tablecodec 的主要代码位于 [tablecodec.go](https://github.com/pingcap-incu
 
 ## 作业描述
 
-根据上述 [EncodeRowKeyWithHandle](https://github.com/pingcap-incubator/tinysql/blob/course/tablecodec/tablecodec.go#L64) 和 [EncodeIndexSeekKey](https://github.com/pingcap-incubator/tinysql/blob/course/tablecodec/tablecodec.go#L86)，实现 [DecodeRecordKey](https://github.com/pingcap-incubator/tinysql/blob/course/tablecodec/tablecodec.go#L72) 和 [DecodeIndexKeyPrefix](https://github.com/pingcap-incubator/tinysql/blob/course/tablecodec/tablecodec.go#L95)，注意由于参数 `key` 可能是不合法的，需要考虑错误处理。
+根据上述 [EncodeRowKeyWithHandle](https://github.com/pingcap-incubator/tinysql/blob/course/tablecodec/tablecodec.go#L64) 和 [EncodeIndexSeekKey](https://github.com/pingcap-incubator/tinysql/blob/course/tablecodec/tablecodec.go#L86) ，实现 [DecodeRecordKey](https://github.com/pingcap-incubator/tinysql/blob/course/tablecodec/tablecodec.go#L72) 和 [DecodeIndexKeyPrefix](https://github.com/pingcap-incubator/tinysql/blob/course/tablecodec/tablecodec.go#L95) ，注意由于参数 `key` 可能是不合法的，需要考虑错误处理。
 
 ## 测试
 
