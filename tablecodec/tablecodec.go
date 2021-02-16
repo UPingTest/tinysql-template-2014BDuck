@@ -80,19 +80,19 @@ func DecodeRecordKey(key kv.Key) (tableID int64, handle int64, err error) {
 	}
 
 	// TableID decoding
-	k_tmp := key[tablePrefixLength:]
-	k_tmp, tableID, err = codec.DecodeInt(k_tmp)
+	keyTmp := key[tablePrefixLength:]
+	keyTmp, tableID, err = codec.DecodeInt(keyTmp)
 	if err != nil {
 		return 0, 0, errInvalidRecordKey.GenWithStack("invalid record key - %q, %v", k, err)
 	}
 
 	// handle decoding
-	if !k_tmp.HasPrefix(recordPrefixSep) {
+	if !keyTmp.HasPrefix(recordPrefixSep) {
 		return 0, 0, errInvalidRecordKey.GenWithStack("invalid record key - %q", k)
 	}
 
-	k_tmp = k_tmp[recordPrefixSepLength:]
-	_, handle, err = codec.DecodeInt(k_tmp)
+	keyTmp = keyTmp[recordPrefixSepLength:]
+	_, handle, err = codec.DecodeInt(keyTmp)
 	if err != nil {
 		return 0, 0, errInvalidRecordKey.GenWithStack("invalid record key - %q, %v", k, err)
 	}
@@ -126,18 +126,18 @@ func DecodeIndexKeyPrefix(key kv.Key) (tableID int64, indexID int64, indexValues
 	}
 
 	// TableID decoding
-	k_tmp := key[tablePrefixLength:]
-	k_tmp, tableID, err = codec.DecodeInt(k_tmp)
+	keyTmp := key[tablePrefixLength:]
+	keyTmp, tableID, err = codec.DecodeInt(keyTmp)
 	if err != nil {
 		return 0, 0, nil, errInvalidIndexKey.GenWithStack("invalid index key - %q, %v", k, err)
 	}
 
 	// indexValues & indexID decoding
-	if !k_tmp.HasPrefix(indexPrefixSep) {
+	if !keyTmp.HasPrefix(indexPrefixSep) {
 		return 0, 0, nil, errInvalidIndexKey.GenWithStack("invalid index key - %q", k)
 	}
-	k_tmp = k_tmp[indexPrefixSepLength:]
-	indexValues, indexID, err = codec.DecodeInt(k_tmp)
+	keyTmp = keyTmp[indexPrefixSepLength:]
+	indexValues, indexID, err = codec.DecodeInt(keyTmp)
 	if err != nil {
 		return 0, 0, nil, errInvalidIndexKey.GenWithStack("invalid index key - %q, %v", k, err)
 	}
