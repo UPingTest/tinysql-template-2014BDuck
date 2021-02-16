@@ -43,6 +43,7 @@ const (
 	RecordRowKeyLen       = prefixLen + idLen /*handle*/
 	tablePrefixLength     = 1
 	recordPrefixSepLength = 2
+	indexPrefixSepLength  = 2
 )
 
 // TableSplitKeyLen is the length of key 't{table_id}' which is used for table split.
@@ -71,8 +72,31 @@ func EncodeRowKeyWithHandle(tableID int64, handle int64) kv.Key {
 
 // DecodeRecordKey decodes the key and gets the tableID, handle.
 func DecodeRecordKey(key kv.Key) (tableID int64, handle int64, err error) {
-	/* Your code here */
-	return
+	k := key
+
+	// tablePrefix validation
+	if !key.HasPrefix(tablePrefix) {
+		return 0, 0, errInvalidRecordKey.GenWithStack("invalid record key - %q", k)
+	}
+
+	// TableID decoding
+	k_tmp := key[tablePrefixLength:]
+	k_tmp, tableID, err = codec.DecodeInt(k_tmp)
+	if err != nil {
+		return 0, 0, errInvalidRecordKey.GenWithStack("invalid record key - %q, %v", k, err)
+	}
+
+	// handle decoding
+	if !k_tmp.HasPrefix(recordPrefixSep) {
+		return 0, 0, errInvalidRecordKey.GenWithStack("invalid record key - %q", k)
+	}
+
+	k_tmp = k_tmp[recordPrefixSepLength:]
+	_, handle, err = codec.DecodeInt(k_tmp)
+	if err != nil {
+		return 0, 0, errInvalidRecordKey.GenWithStack("invalid record key - %q, %v", k, err)
+	}
+	return tableID, handle, nil
 }
 
 // appendTableIndexPrefix appends table index prefix  "t[tableID]_i".
@@ -94,7 +118,30 @@ func EncodeIndexSeekKey(tableID int64, idxID int64, encodedValue []byte) kv.Key 
 
 // DecodeIndexKeyPrefix decodes the key and gets the tableID, indexID, indexValues.
 func DecodeIndexKeyPrefix(key kv.Key) (tableID int64, indexID int64, indexValues []byte, err error) {
-	/* Your code here */
+	k := key
+
+	// tablePrefix validation
+	if !key.HasPrefix(tablePrefix) {
+		return 0, 0, nil, errInvalidIndexKey.GenWithStack("invalid index key - %q", k)
+	}
+
+	// TableID decoding
+	k_tmp := key[tablePrefixLength:]
+	k_tmp, tableID, err = codec.DecodeInt(k_tmp)
+	if err != nil {
+		return 0, 0, nil, errInvalidIndexKey.GenWithStack("invalid index key - %q, %v", k, err)
+	}
+
+	// indexValues & indexID decoding
+	if !k_tmp.HasPrefix(indexPrefixSep) {
+		return 0, 0, nil, errInvalidIndexKey.GenWithStack("invalid index key - %q", k)
+	}
+	k_tmp = k_tmp[indexPrefixSepLength:]
+	indexValues, indexID, err = codec.DecodeInt(k_tmp)
+	if err != nil {
+		return 0, 0, nil, errInvalidIndexKey.GenWithStack("invalid index key - %q, %v", k, err)
+	}
+
 	return tableID, indexID, indexValues, nil
 }
 
