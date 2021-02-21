@@ -29,40 +29,40 @@ type ActionType byte
 
 // List DDL actions.
 const (
-	ActionNone                          ActionType = 0
-	ActionCreateSchema                  ActionType = 1
-	ActionDropSchema                    ActionType = 2
-	ActionCreateTable                   ActionType = 3
-	ActionDropTable                     ActionType = 4
-	ActionAddColumn                     ActionType = 5
-	ActionDropColumn                    ActionType = 6
-	ActionAddIndex                      ActionType = 7
-	ActionDropIndex                     ActionType = 8
-	ActionAddForeignKey                 ActionType = 9
-	ActionDropForeignKey                ActionType = 10
-	ActionTruncateTable                 ActionType = 11
-	ActionModifyColumn                  ActionType = 12
-	ActionRebaseAutoID                  ActionType = 13
-	ActionRenameTable                   ActionType = 14
-	ActionSetDefaultValue               ActionType = 15
-	ActionShardRowID                    ActionType = 16
-	ActionModifyTableComment            ActionType = 17
-	ActionRenameIndex                   ActionType = 18
-	ActionAddTablePartition             ActionType = 19
-	ActionDropTablePartition            ActionType = 20
-	ActionCreateView                    ActionType = 21
-	ActionModifyTableCharsetAndCollate  ActionType = 22
-	ActionTruncateTablePartition        ActionType = 23
-	ActionDropView                      ActionType = 24
-	ActionRecoverTable                  ActionType = 25
-	ActionModifySchemaCharsetAndCollate ActionType = 26
-	ActionLockTable                     ActionType = 27
-	ActionUnlockTable                   ActionType = 28
-	ActionRepairTable                   ActionType = 29
-	ActionSetTiFlashReplica             ActionType = 30
-	ActionUpdateTiFlashReplicaStatus    ActionType = 31
-	ActionAddPrimaryKey                 ActionType = 32
-	ActionDropPrimaryKey                ActionType = 33
+	ActionNone ActionType = iota
+	ActionCreateSchema
+	ActionDropSchema
+	ActionCreateTable
+	ActionDropTable
+	ActionAddColumn
+	ActionDropColumn
+	ActionAddIndex
+	ActionDropIndex
+	ActionAddForeignKey
+	ActionDropForeignKey
+	ActionTruncateTable
+	ActionModifyColumn
+	ActionRebaseAutoID
+	ActionRenameTable
+	ActionSetDefaultValue
+	ActionShardRowID
+	ActionModifyTableComment
+	ActionRenameIndex
+	ActionAddTablePartition
+	ActionDropTablePartition
+	ActionCreateView
+	ActionModifyTableCharsetAndCollate
+	ActionTruncateTablePartition
+	ActionDropView
+	ActionRecoverTable
+	ActionModifySchemaCharsetAndCollate
+	ActionLockTable
+	ActionUnlockTable
+	ActionRepairTable
+	ActionSetTiFlashReplica
+	ActionUpdateTiFlashReplicaStatus
+	ActionAddPrimaryKey
+	ActionDropPrimaryKey
 )
 
 const (
