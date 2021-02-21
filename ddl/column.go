@@ -213,9 +213,7 @@ func onDropColumn(t *meta.Meta, job *model.Job) (ver int64, _ error) {
 	}
 
 	originalState := colInfo.State
-	// TODO: fill the codes of the case `StatePublic`, `StateWriteOnly` and `StateDeleteOnly`.
-	//       You'll need to find the right place where to put the function `adjustColumnInfoInDropColumn`.
-	//       Also you'll need to take a corner case about the default value.
+	// TODO: take a corner case about the default value.
 	//       (Think about how the not null property and default value will influence the `Drop Column` operation.
 	switch colInfo.State {
 	case model.StatePublic:
